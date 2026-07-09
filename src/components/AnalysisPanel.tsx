@@ -9,7 +9,7 @@ interface AnalysisPanelProps {
 export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
   if (!snapshot) {
     return (
-      <section className="panel panel--empty">
+      <section className="panel panel--empty" data-reveal>
         <div className="panel__header">
           <p className="eyebrow">Audio analysis</p>
           <h2>No signal yet</h2>
@@ -22,7 +22,7 @@ export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
   const { metrics } = snapshot;
 
   return (
-    <section className="panel">
+    <section className="panel" data-reveal>
       <div className="panel__header">
         <p className="eyebrow">Audio analysis</p>
         <h2>{snapshot.trackLabel}</h2>

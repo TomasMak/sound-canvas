@@ -11,7 +11,7 @@ export const PromptEditor = ({
   imageSize,
   onImageSizeChange
 }: PromptEditorProps) => (
-  <section className="panel">
+  <section className="panel" data-reveal>
     <div className="panel__header">
       <p className="eyebrow">Prompt shaping</p>
       <h2>Guide the generated piece</h2>

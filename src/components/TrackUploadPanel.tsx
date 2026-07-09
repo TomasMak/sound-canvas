@@ -23,7 +23,7 @@ export const TrackUploadPanel = ({ audioRef, onTrackSelected }: TrackUploadPanel
   };
 
   return (
-    <section className="panel">
+    <section className="panel" data-reveal>
       <div className="panel__header">
         <p className="eyebrow">Track upload</p>
         <h2>Analyze a file</h2>

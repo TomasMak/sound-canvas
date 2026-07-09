@@ -7,7 +7,7 @@ interface ProviderSelectorProps {
 }
 
 export const ProviderSelector = ({ value, onChange }: ProviderSelectorProps) => (
-  <section className="panel">
+  <section className="panel" data-reveal>
     <div className="panel__header">
       <p className="eyebrow">AI provider</p>
       <h2>Pick an image engine</h2>

@@ -5,7 +5,7 @@ interface LiveListenPanelProps {
 }
 
 export const LiveListenPanel = ({ isListening, onStart, onStop }: LiveListenPanelProps) => (
-  <section className="panel">
+  <section className="panel" data-reveal>
     <div className="panel__header">
       <p className="eyebrow">Live listening</p>
       <h2>Capture nearby music</h2>

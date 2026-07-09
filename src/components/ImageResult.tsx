@@ -112,7 +112,7 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
 
   return (
     <>
-      <section className="panel result-panel">
+      <section className="panel result-panel" data-reveal>
         <div className="panel__header panel__header--row">
           <div>
             <p className="eyebrow">Generated art</p>

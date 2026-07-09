@@ -7,7 +7,7 @@ interface StyleSelectorProps {
 }
 
 export const StyleSelector = ({ value, onChange }: StyleSelectorProps) => (
-  <section className="panel">
+  <section className="panel" data-reveal>
     <div className="panel__header">
       <p className="eyebrow">Art direction</p>
       <h2>Choose a visual language</h2>
