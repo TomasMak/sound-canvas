@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { PaintPreviewCanvas } from './PaintPreviewCanvas';
 import { downloadImage } from '../utils/download';
 import type { AudioAnalysisSnapshot } from '../types/audio';
 import type { ArtStyleId, GeneratedImageResult } from '../types/art';
@@ -108,7 +109,43 @@ const buildHotspots = (
 export const ImageResult = ({ result, isGenerating, error, snapshot, style }: ImageResultProps) => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [revealedResultKey, setRevealedResultKey] = useState<string | null>(null);
   const hotspots = buildHotspots(snapshot, style);
+
+  useEffect(() => {
+    if (!isGenerating) {
+      setGenerationProgress(0);
+      return;
+    }
+
+    setGenerationProgress(6);
+    const interval = window.setInterval(() => {
+      setGenerationProgress((current) => {
+        if (current >= 92) {
+          return current;
+        }
+
+        const step = current < 42 ? 8 : current < 70 ? 5 : 2;
+        return Math.min(92, current + step);
+      });
+    }, 220);
+
+    return () => window.clearInterval(interval);
+  }, [isGenerating]);
+
+  useEffect(() => {
+    if (!result) {
+      return;
+    }
+
+    setRevealedResultKey(null);
+    const timeout = window.setTimeout(() => {
+      setRevealedResultKey(result.createdAt);
+    }, 40);
+
+    return () => window.clearTimeout(timeout);
+  }, [result]);
 
   return (
     <>
@@ -128,16 +165,36 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
           </button>
         </div>
 
-        {isGenerating && <p>Generating artwork...</p>}
+        {isGenerating && (
+          <div className="generation-preview">
+            <div className="generation-preview__frame">
+              <PaintPreviewCanvas snapshot={snapshot} style={style} progress={generationProgress} />
+              <div
+                className="generation-preview__reveal"
+                style={{ ['--generation-progress' as string]: `${generationProgress}%` }}
+              />
+            </div>
+            <div className="generation-preview__meta">
+              <strong>Painting the composition</strong>
+              <p>
+                Laying down brush paths, tonal masses, and finer marks from the track before the final
+                image resolves.
+              </p>
+              <span>{generationProgress}% visual pass complete</span>
+            </div>
+          </div>
+        )}
         {error && <p className="error-text">{error}</p>}
 
         {!isGenerating && !result && !error && (
           <p>Once audio is analyzed, generate a piece and download the final image.</p>
         )}
 
-        {result && (
+        {result && !isGenerating && (
           <>
-            <img className="result-image" src={result.imageUrl} alt="Generated music-inspired artwork" />
+            <div className={`result-image-wrap ${revealedResultKey === result.createdAt ? 'result-image-wrap--revealed' : ''}`}>
+              <img className="result-image" src={result.imageUrl} alt="Generated music-inspired artwork" />
+            </div>
             <div className="result-actions">
               <button
                 type="button"

@@ -426,11 +426,106 @@ img {
   min-height: 320px;
 }
 
+.generation-preview {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.generation-preview__frame {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(160deg, rgba(244, 236, 226, 0.92), rgba(234, 227, 217, 0.88)),
+    radial-gradient(circle at top left, rgba(183, 158, 131, 0.18), transparent 34%);
+}
+
+.generation-preview__reveal {
+  position: absolute;
+  inset: 0;
+}
+
+.paint-preview-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.generation-preview__reveal {
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent calc(var(--generation-progress) - 8%),
+      rgba(255, 255, 255, 0.45) var(--generation-progress),
+      rgba(246, 240, 232, 0.92) calc(var(--generation-progress) + 14%),
+      rgba(246, 240, 232, 0.98) 100%
+    );
+}
+
+.generation-preview__meta {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.generation-preview__meta strong {
+  font-family: 'Marcellus', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.generation-preview__meta p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.generation-preview__meta span {
+  color: var(--accent);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+.result-image-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.result-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.1) 30%, transparent 50%),
+    linear-gradient(180deg, rgba(245, 239, 232, 0.96), rgba(245, 239, 232, 0.14));
+  transform: translateX(0%);
+  transition:
+    transform 1.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1s ease;
+}
+
+.result-image-wrap--revealed::after {
+  transform: translateX(108%);
+  opacity: 0;
+}
+
 .result-image {
   width: 100%;
-  margin-top: var(--space-3);
   display: block;
-  border: 1px solid var(--line);
+  transform: scale(1.02);
+  opacity: 0.86;
+  transition:
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1s ease;
+}
+
+.result-image-wrap--revealed .result-image {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .viewer-modal,
@@ -615,6 +710,7 @@ img {
     transform: scale(1.4);
   }
 }
+
 
 .status-banner,
 .error-text {
