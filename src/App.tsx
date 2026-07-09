@@ -114,7 +114,13 @@ function App() {
               {isGenerating ? 'Generating...' : 'Generate art'}
             </button>
           </section>
-          <ImageResult result={result} isGenerating={isGenerating} error={generationError} />
+          <ImageResult
+            result={result}
+            isGenerating={isGenerating}
+            error={generationError}
+            snapshot={snapshot}
+            style={settings.style}
+          />
         </div>
       </main>
     </div>

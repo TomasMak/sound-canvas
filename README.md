@@ -40,6 +40,23 @@ This runs:
 
 Frontend requests to `/api/*` are proxied to the backend in development.
 
+## How It Works
+
+Sound Canvas turns music into artwork in two steps:
+
+1. The app listens to either an uploaded track or live microphone audio and studies the sound.
+2. It looks at qualities such as energy, rhythm, brightness, and the balance between bass, mids, and treble.
+3. Those music details are converted into creative guidance for the image model.
+4. The selected visual style then shapes the final result, so the same song can become abstract, pixel-based, or more atmospheric.
+
+In simple terms:
+
+- Louder or more energetic music can produce bolder movement and stronger contrast.
+- Calmer music can lead to smoother shapes and softer visual flow.
+- Bass, mids, and high frequencies help influence the feel, color balance, and structure of the generated piece.
+
+The waveform shown in the interface is a visual preview of the sound. The final image is created from the app's summary of the music rather than from the raw audio file directly.
+
 ## Notes
 
 - The app performs audio analysis locally with the Web Audio API.
