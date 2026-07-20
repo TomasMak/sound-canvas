@@ -1,5 +1,5 @@
 import type { AudioAnalysisSnapshot } from '../types/audio';
-import { formatBpm, formatHz, formatPercent } from '../utils/format';
+import { formatBpm, formatDecimal, formatHz, formatPercent } from '../utils/format';
 import { WaveformCanvas } from './WaveformCanvas';
 
 interface AnalysisPanelProps {
@@ -20,6 +20,12 @@ export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
   }
 
   const { metrics } = snapshot;
+  const bandRows = [
+    { label: 'Bass energy', value: metrics.bassEnergy },
+    { label: 'Mid energy', value: metrics.midEnergy },
+    { label: 'Treble energy', value: metrics.trebleEnergy },
+    { label: 'Overall intensity', value: metrics.rms }
+  ];
 
   return (
     <section className="panel" data-reveal>
@@ -55,6 +61,61 @@ export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
           <span>Treble</span>
           <strong>{formatPercent(metrics.trebleEnergy)}</strong>
         </article>
+      </div>
+
+      <div className="analysis-detail-grid">
+        <section className="analysis-block">
+          <div className="analysis-block__header">
+            <span className="eyebrow">Energy map</span>
+            <h3>How the track is distributed</h3>
+          </div>
+          <div className="analysis-bars">
+            {bandRows.map((row) => (
+              <div key={row.label} className="analysis-bars__row">
+                <div className="analysis-bars__meta">
+                  <strong>{row.label}</strong>
+                  <span>{formatPercent(row.value)}</span>
+                </div>
+                <div className="analysis-bars__track">
+                  <div className="analysis-bars__fill" style={{ width: formatPercent(row.value) }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="analysis-block">
+          <div className="analysis-block__header">
+            <span className="eyebrow">Signal details</span>
+            <h3>What the system detected</h3>
+          </div>
+          <dl className="analysis-data-list">
+            <div>
+              <dt>Source</dt>
+              <dd>{snapshot.sourceKind === 'microphone' ? 'Live microphone' : 'Uploaded track'}</dd>
+            </div>
+            <div>
+              <dt>Captured</dt>
+              <dd>{new Date(snapshot.capturedAt).toLocaleTimeString()}</dd>
+            </div>
+            <div>
+              <dt>RMS level</dt>
+              <dd>{formatDecimal(metrics.rms)}</dd>
+            </div>
+            <div>
+              <dt>Peak level</dt>
+              <dd>{formatDecimal(metrics.peak)}</dd>
+            </div>
+            <div>
+              <dt>Mid energy</dt>
+              <dd>{formatPercent(metrics.midEnergy)}</dd>
+            </div>
+            <div>
+              <dt>Zero crossing rate</dt>
+              <dd>{formatDecimal(metrics.zeroCrossingRate)}</dd>
+            </div>
+          </dl>
+        </section>
       </div>
     </section>
   );

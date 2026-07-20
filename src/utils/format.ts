@@ -4,3 +4,5 @@ export const formatPercent = (value: number): string =>
 export const formatHz = (value: number): string => `${Math.round(value)} Hz`;
 
 export const formatBpm = (value: number): string => `${Math.round(value)} BPM`;
+
+export const formatDecimal = (value: number, digits = 2): string => value.toFixed(digits);
