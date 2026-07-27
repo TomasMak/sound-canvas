@@ -1,10 +1,16 @@
 import type { AudioAnalysisSnapshot } from '../types/audio';
 import type { GeneratedImageResult, GenerationSettings } from '../types/art';
+import { createVisualScoreDataUrl } from './visualScore';
 
 export const generateImageFromAudio = async (
   snapshot: AudioAnalysisSnapshot,
   settings: GenerationSettings
 ): Promise<GeneratedImageResult> => {
+  const visualScore = createVisualScoreDataUrl(
+    snapshot,
+    settings.style,
+    settings.imageSize
+  );
   const response = await fetch('/api/generate-image', {
     method: 'POST',
     headers: {
@@ -12,7 +18,8 @@ export const generateImageFromAudio = async (
     },
     body: JSON.stringify({
       snapshot,
-      settings
+      settings,
+      visualScore
     })
   });
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ImageResult } from './components/ImageResult';
 import { LiveListenPanel } from './components/LiveListenPanel';
@@ -18,14 +18,22 @@ const defaultSettings: GenerationSettings = {
 };
 
 function App() {
-  const { audioRef, snapshot, error: audioError, isListening, startMicrophone, stopMicrophone, connectAudioElement } =
-    useAudioAnalysis();
+  const {
+    audioRef,
+    snapshot,
+    error: audioError,
+    isListening,
+    isAnalyzing,
+    startMicrophone,
+    stopMicrophone,
+    connectAudioElement
+  } = useAudioAnalysis();
   const [settings, setSettings] = useState<GenerationSettings>(defaultSettings);
   const [result, setResult] = useState<GeneratedImageResult | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const canGenerate = useMemo(() => Boolean(snapshot) && !isGenerating, [snapshot, isGenerating]);
+  const canGenerate = Boolean(snapshot) && !isGenerating && !isAnalyzing;
 
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
@@ -74,7 +82,11 @@ function App() {
     <div className="app-shell">
       <header className="top-layout" data-reveal>
         <div className="primary-actions">
-          <TrackUploadPanel audioRef={audioRef} onTrackSelected={connectAudioElement} />
+          <TrackUploadPanel
+            audioRef={audioRef}
+            isAnalyzing={isAnalyzing}
+            onTrackSelected={connectAudioElement}
+          />
           <LiveListenPanel isListening={isListening} onStart={startMicrophone} onStop={stopMicrophone} />
         </div>
 
@@ -99,12 +111,13 @@ function App() {
             <summary>Read more about how it works</summary>
             <div className="about-toggle__content">
               <p>
-                The app studies waveform, tempo, bass, mids, treble, and overall intensity, then uses
-                those signals to guide the generated image.
+                The app studies the full waveform and follows how bass, mids, treble,
+                loudness, and sudden beats change from the start of the track to the end.
               </p>
               <p>
-                You can review the audio analysis first, pick the art direction and provider, then
-                generate and download the final piece.
+                Those changes become a visual score that you can inspect first. The same
+                score is then supplied to the chosen image model as the structure for the
+                final artwork.
               </p>
             </div>
           </details>
@@ -120,7 +133,7 @@ function App() {
 
       <main className="layout-grid">
         <div className="stack">
-          <AnalysisPanel snapshot={snapshot} />
+          <AnalysisPanel snapshot={snapshot} style={settings.style} />
         </div>
 
         <div className="stack">
@@ -144,8 +157,8 @@ function App() {
               <h2>Create the artwork</h2>
             </div>
             <p className="supporting-copy">
-              Generation runs through the backend so the experience stays clean while the provider keys
-              stay off the client.
+              The track's visual score fixes the composition; the selected provider adds
+              artistic material and finish through the backend.
             </p>
             <button type="button" className="button button--primary button--wide" disabled={!canGenerate} onClick={handleGenerate}>
               {isGenerating ? 'Generating...' : 'Generate art'}

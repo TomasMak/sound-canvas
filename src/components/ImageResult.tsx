@@ -80,10 +80,10 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
               />
             </div>
             <div className="generation-preview__meta">
-              <strong>Painting the composition</strong>
+              <strong>Building from the track's visual score</strong>
               <p>
-                Laying down brush paths, tonal masses, and finer marks from the track before the final
-                image resolves.
+                Revealing the same waveform-led paths, frequency colors, and beat
+                accents that were sent to the image model.
               </p>
               <span>{generationProgress}% visual pass complete</span>
             </div>
@@ -135,21 +135,23 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
             <p className="eyebrow">How it works</p>
             <h3>How the artwork reflects the music</h3>
             <p>
-              Sound Canvas listens to the song and looks at qualities like energy, rhythm, brightness,
-              and the balance of low, mid, and high sounds.
+              Sound Canvas analyzes how the full track changes over time, including
+              loudness, low sounds, middle frequencies, high sounds, and sudden beats.
             </p>
             <p>
-              Those details are turned into creative guidance for the image model. Fast or intense music
-              can lead to more movement and contrast, while softer or calmer music can produce smoother
-              shapes and gentler compositions.
+              It first draws a track-specific visual score. Time runs from left to right:
+              warm brown follows bass, blue-green follows mids, gold follows treble, the
+              surrounding shape follows loudness, and terracotta marks sudden hits.
             </p>
             <p>
-              The selected art style shapes the final look. That means the same song can become a bold
-              abstract piece, a retro pixel composition, or a glowing spectral artwork.
+              That score is sent to the selected image model as a reference image. The
+              model is asked to preserve its main paths and accents while adding the
+              chosen artistic texture and finish.
             </p>
             <p>
-              The waveform preview helps visualize the sound, while the generated image is based on the
-              music summary built from the audio analysis.
+              This means the final artwork can still vary creatively, but its underlying
+              composition is anchored to the analyzed track rather than invented from a
+              general mood description.
             </p>
           </div>
         </div>

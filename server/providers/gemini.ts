@@ -4,6 +4,7 @@ interface GeminiGenerationArgs {
   apiKey: string;
   prompt: string;
   imageSize: '1024x1024' | '1536x1024' | '1024x1536';
+  visualScore: string;
 }
 
 const mapAspectRatio = (imageSize: GeminiGenerationArgs['imageSize']): string => {
@@ -21,8 +22,14 @@ const mapAspectRatio = (imageSize: GeminiGenerationArgs['imageSize']): string =>
 export const generateWithGemini = async ({
   apiKey,
   prompt,
-  imageSize
+  imageSize,
+  visualScore
 }: GeminiGenerationArgs): Promise<string> => {
+  const dataUrlMatch = visualScore.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
+  if (!dataUrlMatch) {
+    throw new Error('The audio visual score is not a valid image.');
+  }
+
   const response = await fetch(GEMINI_API_URL, {
     method: 'POST',
     headers: {
@@ -31,7 +38,17 @@ export const generateWithGemini = async ({
     },
     body: JSON.stringify({
       model: 'gemini-3.1-flash-image',
-      input: prompt,
+      input: [
+        {
+          type: 'image',
+          mime_type: dataUrlMatch[1],
+          data: dataUrlMatch[2]
+        },
+        {
+          type: 'text',
+          text: prompt
+        }
+      ],
       response_format: {
         type: 'image',
         aspect_ratio: mapAspectRatio(imageSize),

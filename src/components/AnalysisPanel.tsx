@@ -1,12 +1,16 @@
 import type { AudioAnalysisSnapshot } from '../types/audio';
+import type { ArtStyleId } from '../types/art';
+import { VISUAL_SCORE_COLORS } from '../services/visualScore';
 import { formatBpm, formatDecimal, formatHz, formatPercent } from '../utils/format';
+import { VisualScoreCanvas } from './VisualScoreCanvas';
 import { WaveformCanvas } from './WaveformCanvas';
 
 interface AnalysisPanelProps {
   snapshot: AudioAnalysisSnapshot | null;
+  style: ArtStyleId;
 }
 
-export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
+export const AnalysisPanel = ({ snapshot, style }: AnalysisPanelProps) => {
   if (!snapshot) {
     return (
       <section className="panel panel--empty" data-reveal>
@@ -35,6 +39,36 @@ export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
       </div>
 
       <WaveformCanvas waveform={snapshot.waveform} spectrum={snapshot.spectrum} />
+
+      <section className="visual-score">
+        <div className="visual-score__header">
+          <div>
+            <p className="eyebrow">Track visual score</p>
+            <h3>The composition sent to the image model</h3>
+          </div>
+          <span className="visual-score__seed">Signature {snapshot.signature.seed}</span>
+        </div>
+        <VisualScoreCanvas snapshot={snapshot} style={style} />
+        <div className="visual-score__legend" aria-label="Visual score color mapping">
+          <span style={{ ['--legend-color' as string]: VISUAL_SCORE_COLORS.bass }}>
+            Bass
+          </span>
+          <span style={{ ['--legend-color' as string]: VISUAL_SCORE_COLORS.mids }}>
+            Mids
+          </span>
+          <span style={{ ['--legend-color' as string]: VISUAL_SCORE_COLORS.treble }}>
+            Treble
+          </span>
+          <span style={{ ['--legend-color' as string]: VISUAL_SCORE_COLORS.transient }}>
+            Beats / transients
+          </span>
+        </div>
+        <p className="visual-score__note">
+          Time moves from left to right. The paths follow the track's changing frequency
+          energy; the surrounding shape follows loudness, and the accents mark sudden
+          hits.
+        </p>
+      </section>
 
       <div className="metric-grid">
         <article className="metric-card">
@@ -97,6 +131,10 @@ export const AnalysisPanel = ({ snapshot }: AnalysisPanelProps) => {
             <div>
               <dt>Captured</dt>
               <dd>{new Date(snapshot.capturedAt).toLocaleTimeString()}</dd>
+            </div>
+            <div>
+              <dt>Analyzed duration</dt>
+              <dd>{Math.round(snapshot.signature.durationSeconds)} sec</dd>
             </div>
             <div>
               <dt>RMS level</dt>

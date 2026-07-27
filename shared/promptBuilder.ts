@@ -3,30 +3,38 @@ import type { ArtStyleId } from '../src/types/art.js';
 
 const styleInstructions: Record<ArtStyleId, string> = {
   abstract:
-    'Create expressive abstract artwork with sweeping energy, layered textures, and a composition shaped by musical rhythm.',
+    'Finish the visual score as expressive contemporary abstract artwork with tactile material, layered depth, and confident negative space.',
   pixelated:
-    'Create pixel art with a strong retro game aesthetic, visible pixel blocks, bold contrast, and movement tied to the beat.',
+    'Finish the visual score as refined pixel art with visible blocks, crisp stepped contours, and rhythmic digital texture.',
   'spectral-bloom':
-    'Create luminous generative art with organic forms, spectral gradients, glowing particles, and harmonic depth.'
+    'Finish the visual score as luminous generative art with organic blooms, atmospheric depth, and restrained spectral light.'
 };
+
+const encodeTimeline = (values: number[]): string =>
+  values.map((value) => Math.min(9, Math.max(0, Math.round(value * 9)))).join('');
 
 export const buildArtPrompt = (
   snapshot: AudioAnalysisSnapshot,
   style: ArtStyleId,
   promptNotes: string
 ): string => {
-  const { metrics, trackLabel, sourceKind } = snapshot;
+  const { metrics, signature, trackLabel, sourceKind } = snapshot;
 
   return [
-    `Generate a single finished artwork inspired by the audio track "${trackLabel}".`,
+    `Create one finished artwork from the supplied visual score for "${trackLabel}".`,
     styleInstructions[style],
     `Audio source: ${sourceKind}.`,
-    `Mood: ${metrics.mood}.`,
-    `Tempo estimate: ${Math.round(metrics.tempoEstimate)} BPM.`,
-    `Energy profile: bass ${metrics.bassEnergy.toFixed(2)}, mids ${metrics.midEnergy.toFixed(2)}, treble ${metrics.trebleEnergy.toFixed(2)}.`,
-    `Wave intensity: RMS ${metrics.rms.toFixed(2)}, peak ${metrics.peak.toFixed(2)}, dynamic range ${metrics.dynamicRange.toFixed(2)}.`,
-    `Spectral centroid: ${Math.round(metrics.centroid)} Hz.`,
-    'Translate beats into visible rhythm, frequency balance into palette and form, and texture into composition.',
+    `The reference image is an authoritative, deterministic visual score derived from ${signature.durationSeconds.toFixed(1)} seconds of audio; it is not a loose mood board.`,
+    'Preserve its left-to-right chronology, dominant paths, peaks, valleys, relative line weights, negative space, and accent positions.',
+    'Do not replace the supplied composition with unrelated geometry. Do not turn it into a literal chart or add labels.',
+    'Visual mapping: warm umber is bass, slate teal is mids, muted gold is treble, the charcoal envelope is overall loudness, and terracotta accents are beats or sudden transients.',
+    `Track signature ${signature.seed}. Mood ${metrics.mood}; tempo ${Math.round(metrics.tempoEstimate)} BPM; spectral centroid ${Math.round(metrics.centroid)} Hz.`,
+    `Amplitude timeline 0-9: ${encodeTimeline(signature.amplitudeEnvelope)}.`,
+    `Bass timeline 0-9: ${encodeTimeline(signature.bassTimeline)}.`,
+    `Mid timeline 0-9: ${encodeTimeline(signature.midTimeline)}.`,
+    `Treble timeline 0-9: ${encodeTimeline(signature.trebleTimeline)}.`,
+    `Transient timeline 0-9: ${encodeTimeline(signature.transientTimeline)}.`,
+    'Use the AI only to add artistic material, texture, depth, and finish around that fixed musical structure.',
     'Return a high quality image with no text, no watermark, and no framing device.',
     promptNotes.trim()
   ]
