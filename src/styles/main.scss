@@ -65,6 +65,95 @@ img {
   padding: var(--space-6) 0 var(--space-8);
 }
 
+.top-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: var(--space-5);
+  align-items: start;
+  margin-bottom: var(--space-6);
+}
+
+.primary-actions {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.hero-compact {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.58), rgba(255, 248, 242, 0.9)),
+    radial-gradient(circle at top left, rgba(183, 158, 131, 0.16), transparent 32%);
+  box-shadow: var(--shadow);
+}
+
+.hero-compact h1 {
+  margin: 0;
+  font-family: 'Marcellus', serif;
+  font-size: clamp(2.3rem, 4vw, 4rem);
+  line-height: 1.02;
+  font-weight: 400;
+  max-width: 11ch;
+}
+
+.hero-compact p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.hero-compact__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.hero-compact__meta div {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid rgba(95, 79, 60, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.hero-compact__meta span {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.hero-compact__meta strong {
+  font-size: 0.98rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.about-toggle {
+  border-top: 1px solid rgba(95, 79, 60, 0.12);
+  padding-top: var(--space-4);
+}
+
+.about-toggle summary {
+  list-style: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+
+.about-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.about-toggle__content {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
 [data-reveal] {
   opacity: 0;
   transform: translateY(28px);
@@ -728,6 +817,7 @@ img {
 }
 
 @media (max-width: 1080px) {
+  .top-layout,
   .hero,
   .layout-grid {
     grid-template-columns: 1fr;
@@ -743,7 +833,8 @@ img {
   .hero__copy,
   .panel,
   .viewer-modal__panel,
-  .info-modal__panel {
+  .info-modal__panel,
+  .hero-compact {
     padding: 20px;
   }
 
@@ -751,8 +842,16 @@ img {
     max-width: 12ch;
   }
 
+  .hero-compact h1 {
+    max-width: none;
+  }
+
   .hero__meta {
     grid-template-rows: none;
+  }
+
+  .hero-compact__meta {
+    grid-template-columns: 1fr;
   }
 
   .metric-grid {

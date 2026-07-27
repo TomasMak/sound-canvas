@@ -72,28 +72,42 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="hero" data-reveal>
-        <div className="hero__copy">
-          <p className="eyebrow">Sound Canvas</p>
-          <h1>Music becomes image in a quieter, sharper visual language.</h1>
-          <p>
-            Built for music fans and creators, Sound Canvas listens to a track, studies its rhythm and
-            texture, then translates those details into collectible visual artwork.
-          </p>
+      <header className="top-layout" data-reveal>
+        <div className="primary-actions">
+          <TrackUploadPanel audioRef={audioRef} onTrackSelected={connectAudioElement} />
+          <LiveListenPanel isListening={isListening} onStart={startMicrophone} onStop={stopMicrophone} />
         </div>
-        <div className="hero__meta">
-          <div>
-            <span>Capture</span>
-            <strong>Live room audio or uploaded tracks</strong>
+
+        <div className="hero-compact">
+          <p className="eyebrow">Sound Canvas</p>
+          <h1>Turn a track into visual art without digging through the page first.</h1>
+          <p>
+            Upload a file or listen live, review the analysis, then generate artwork from the music's
+            rhythm, tone, and energy.
+          </p>
+          <div className="hero-compact__meta">
+            <div>
+              <span>Capture</span>
+              <strong>Upload or live listening</strong>
+            </div>
+            <div>
+              <span>Output</span>
+              <strong>Generated artwork + analysis</strong>
+            </div>
           </div>
-          <div>
-            <span>Interpretation</span>
-            <strong>Waveform, tempo, tone, and mood</strong>
-          </div>
-          <div>
-            <span>Result</span>
-            <strong>Downloadable artwork with explainable mapping</strong>
-          </div>
+          <details className="about-toggle">
+            <summary>Read more about how it works</summary>
+            <div className="about-toggle__content">
+              <p>
+                The app studies waveform, tempo, bass, mids, treble, and overall intensity, then uses
+                those signals to guide the generated image.
+              </p>
+              <p>
+                You can review the audio analysis first, pick the art direction and provider, then
+                generate and download the final piece.
+              </p>
+            </div>
+          </details>
         </div>
       </header>
 
@@ -106,20 +120,10 @@ function App() {
 
       <main className="layout-grid">
         <div className="stack">
-          <section className="section-intro" data-reveal>
-            <p className="eyebrow">Listening</p>
-            <h2>Bring in a song and let the system read its shape.</h2>
-          </section>
-          <LiveListenPanel isListening={isListening} onStart={startMicrophone} onStop={stopMicrophone} />
-          <TrackUploadPanel audioRef={audioRef} onTrackSelected={connectAudioElement} />
           <AnalysisPanel snapshot={snapshot} />
         </div>
 
         <div className="stack">
-          <section className="section-intro" data-reveal>
-            <p className="eyebrow">Composition</p>
-            <h2>Choose the rendering voice and refine the visual outcome.</h2>
-          </section>
           <ProviderSelector
             value={settings.provider}
             onChange={(provider) => setSettings((current) => ({ ...current, provider }))}
