@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { drawVisualScore, VISUAL_SCORE_COLORS } from '../services/visualScore';
+import {
+  buildVisualComposition,
+  drawVisualScore,
+  VISUAL_SCORE_COLORS
+} from '../services/visualScore';
 import type { AudioAnalysisSnapshot } from '../types/audio';
 import type { ArtStyleId } from '../types/art';
 
@@ -17,6 +21,8 @@ interface ScoreParticle {
   radius: number;
   color: string;
   originX: number;
+  originY: number;
+  timelineRatio: number;
 }
 
 const WIDTH = 960;
@@ -37,71 +43,61 @@ const createSeededRandom = (seed: string): (() => number) => {
 const buildParticles = (snapshot: AudioAnalysisSnapshot): ScoreParticle[] => {
   const { signature } = snapshot;
   const random = createSeededRandom(signature.seed);
+  const composition = buildVisualComposition(snapshot, WIDTH, HEIGHT);
   const bands = [
     {
-      values: signature.bassTimeline,
-      baseline: 0.68,
-      amplitude: 0.22,
+      points: composition.bass,
       color: VISUAL_SCORE_COLORS.bass
     },
     {
-      values: signature.midTimeline,
-      baseline: 0.5,
-      amplitude: 0.2,
+      points: composition.mids,
       color: VISUAL_SCORE_COLORS.mids
     },
     {
-      values: signature.trebleTimeline,
-      baseline: 0.31,
-      amplitude: 0.18,
+      points: composition.treble,
       color: VISUAL_SCORE_COLORS.treble
     }
   ];
   const particles: ScoreParticle[] = [];
 
-  bands.forEach((band, bandIndex) => {
-    band.values.forEach((value, index) => {
-      const transient = signature.transientTimeline[index] ?? 0;
-      const originX =
-        WIDTH * 0.07 + (index / Math.max(band.values.length - 1, 1)) * WIDTH * 0.86;
-      const originY =
-        HEIGHT * band.baseline + (0.5 - value) * HEIGHT * band.amplitude;
+  bands.forEach((band) => {
+    band.points.forEach((point) => {
+      const { transient, value } = point;
       const count = 1 + Math.round(value * 2 + transient * 2);
 
       for (let particleIndex = 0; particleIndex < count; particleIndex += 1) {
         const angle = random() * Math.PI * 2;
         const speed = 0.25 + value * 0.9 + transient * 1.6;
         particles.push({
-          x: originX + (random() - 0.5) * 14,
-          y: originY + (random() - 0.5) * 14,
+          x: point.x + (random() - 0.5) * 14,
+          y: point.y + (random() - 0.5) * 14,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           radius: 1.4 + random() * 2.8 + transient * 2,
           color: transient > 0.58 ? VISUAL_SCORE_COLORS.transient : band.color,
-          originX
+          originX: point.x,
+          originY: point.y,
+          timelineRatio: point.timelineRatio
         });
       }
     });
+  });
 
-    if (bandIndex === 1) {
-      signature.transientTimeline.forEach((value, index) => {
-        if (value < 0.42) {
-          return;
-        }
-        const originX =
-          WIDTH * 0.07 +
-          (index / Math.max(signature.transientTimeline.length - 1, 1)) * WIDTH * 0.86;
-        particles.push({
-          x: originX,
-          y: HEIGHT * (index % 2 === 0 ? 0.35 : 0.65),
-          vx: (random() - 0.5) * (1 + value * 2),
-          vy: (random() - 0.5) * (1 + value * 2),
-          radius: 2 + value * 4,
-          color: VISUAL_SCORE_COLORS.transient,
-          originX
-        });
-      });
+  composition.transients.forEach((point) => {
+    if (point.value < 0.42) {
+      return;
     }
+    particles.push({
+      x: point.x,
+      y: point.y,
+      vx: (random() - 0.5) * (1 + point.value * 2),
+      vy: (random() - 0.5) * (1 + point.value * 2),
+      radius: 2 + point.value * 4,
+      color: VISUAL_SCORE_COLORS.transient,
+      originX: point.x,
+      originY: point.y,
+      timelineRatio: point.timelineRatio
+    });
   });
 
   return particles;
@@ -110,13 +106,13 @@ const buildParticles = (snapshot: AudioAnalysisSnapshot): ScoreParticle[] => {
 const drawParticles = (
   context: CanvasRenderingContext2D,
   particles: ScoreParticle[],
-  visibleX: number,
+  progress: number,
   activity: number
 ): void => {
   const activeParticles: ScoreParticle[] = [];
 
   particles.forEach((particle) => {
-    if (particle.originX > visibleX) {
+    if (particle.timelineRatio > progress) {
       return;
     }
     activeParticles.push(particle);
@@ -134,6 +130,7 @@ const drawParticles = (
 
     const returnStrength = 0.0008 + activity * 0.0007;
     particle.vx += (particle.originX - particle.x) * returnStrength;
+    particle.vy += (particle.originY - particle.y) * returnStrength;
   });
 
   const cellSize = 28;
@@ -225,11 +222,10 @@ export const PaintPreviewCanvas = ({
       drawVisualScore(context, WIDTH, HEIGHT, snapshot, style, {
         progress: progressRatio
       });
-      const visibleX = WIDTH * (0.07 + progressRatio * 0.86);
       drawParticles(
         context,
         particlesRef.current,
-        visibleX,
+        progressRatio,
         0.35 + snapshot.metrics.tempoEstimate / 180
       );
       animationFrame = requestAnimationFrame(render);
@@ -245,7 +241,7 @@ export const PaintPreviewCanvas = ({
       className="paint-preview-canvas"
       width={WIDTH}
       height={HEIGHT}
-      aria-label="Animated reveal of the track-specific visual score"
+      aria-label="Animated reveal of the track-specific abstract composition"
       role="img"
     />
   );

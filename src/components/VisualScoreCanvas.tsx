@@ -32,7 +32,7 @@ export const VisualScoreCanvas = ({
       className="visual-score-canvas"
       width={960}
       height={560}
-      aria-label="Track-specific visual score derived from the audio analysis"
+      aria-label="Track-specific abstract composition derived from the audio analysis"
       role="img"
     />
   );

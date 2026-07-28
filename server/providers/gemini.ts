@@ -5,6 +5,7 @@ interface GeminiGenerationArgs {
   prompt: string;
   imageSize: '1024x1024' | '1536x1024' | '1024x1536';
   visualScore: string;
+  signal?: AbortSignal;
 }
 
 const mapAspectRatio = (imageSize: GeminiGenerationArgs['imageSize']): string => {
@@ -23,7 +24,8 @@ export const generateWithGemini = async ({
   apiKey,
   prompt,
   imageSize,
-  visualScore
+  visualScore,
+  signal
 }: GeminiGenerationArgs): Promise<string> => {
   const dataUrlMatch = visualScore.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
   if (!dataUrlMatch) {
@@ -32,6 +34,7 @@ export const generateWithGemini = async ({
 
   const response = await fetch(GEMINI_API_URL, {
     method: 'POST',
+    signal,
     headers: {
       'Content-Type': 'application/json',
       'x-goog-api-key': apiKey

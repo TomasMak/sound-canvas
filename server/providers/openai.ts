@@ -5,13 +5,15 @@ interface OpenAiGenerationArgs {
   prompt: string;
   imageSize: '1024x1024' | '1536x1024' | '1024x1536';
   visualScore: string;
+  signal?: AbortSignal;
 }
 
 export const generateWithOpenAi = async ({
   apiKey,
   prompt,
   imageSize,
-  visualScore
+  visualScore,
+  signal
 }: OpenAiGenerationArgs): Promise<string> => {
   const dataUrlMatch = visualScore.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
   if (!dataUrlMatch) {
@@ -30,6 +32,7 @@ export const generateWithOpenAi = async ({
 
   const response = await fetch(OPENAI_API_URL, {
     method: 'POST',
+    signal,
     headers: {
       Authorization: `Bearer ${apiKey}`
     },

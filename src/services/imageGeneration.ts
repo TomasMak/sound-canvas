@@ -4,7 +4,8 @@ import { createVisualScoreDataUrl } from './visualScore';
 
 export const generateImageFromAudio = async (
   snapshot: AudioAnalysisSnapshot,
-  settings: GenerationSettings
+  settings: GenerationSettings,
+  signal?: AbortSignal
 ): Promise<GeneratedImageResult> => {
   const visualScore = createVisualScoreDataUrl(
     snapshot,
@@ -13,6 +14,7 @@ export const generateImageFromAudio = async (
   );
   const response = await fetch('/api/generate-image', {
     method: 'POST',
+    signal,
     headers: {
       'Content-Type': 'application/json'
     },

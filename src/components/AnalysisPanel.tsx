@@ -43,8 +43,8 @@ export const AnalysisPanel = ({ snapshot, style }: AnalysisPanelProps) => {
       <section className="visual-score">
         <div className="visual-score__header">
           <div>
-            <p className="eyebrow">Track visual score</p>
-            <h3>The composition sent to the image model</h3>
+            <p className="eyebrow">Audio composition map</p>
+            <h3>The abstract structure sent to the image model</h3>
           </div>
           <span className="visual-score__seed">Signature {snapshot.signature.seed}</span>
         </div>
@@ -64,9 +64,9 @@ export const AnalysisPanel = ({ snapshot, style }: AnalysisPanelProps) => {
           </span>
         </div>
         <p className="visual-score__note">
-          Time moves from left to right. The paths follow the track's changing frequency
-          energy; the surrounding shape follows loudness, and the accents mark sudden
-          hits.
+          The track is folded into an abstract field instead of drawn as a graph. Bass
+          creates broad weight, mids connect the composition, treble adds fine detail,
+          loudness changes its scale, and sudden hits create sharp accents.
         </p>
       </section>
 

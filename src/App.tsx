@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ImageResult } from './components/ImageResult';
 import { LiveListenPanel } from './components/LiveListenPanel';
@@ -32,6 +32,8 @@ function App() {
   const [result, setResult] = useState<GeneratedImageResult | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const generationControllerRef = useRef<AbortController | null>(null);
+  const generationRequestIdRef = useRef(0);
 
   const canGenerate = Boolean(snapshot) && !isGenerating && !isAnalyzing;
 
@@ -59,22 +61,69 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const abortPendingGeneration = (): void => {
+      generationRequestIdRef.current += 1;
+      generationControllerRef.current?.abort();
+      generationControllerRef.current = null;
+    };
+    const resetGenerationForHotUpdate = (): void => {
+      abortPendingGeneration();
+      setIsGenerating(false);
+      setGenerationError(null);
+    };
+
+    import.meta.hot?.on('vite:beforeUpdate', resetGenerationForHotUpdate);
+
+    return () => {
+      import.meta.hot?.off('vite:beforeUpdate', resetGenerationForHotUpdate);
+      abortPendingGeneration();
+    };
+  }, []);
+
+  const handleCancelGeneration = (): void => {
+    generationRequestIdRef.current += 1;
+    generationControllerRef.current?.abort();
+    generationControllerRef.current = null;
+    setIsGenerating(false);
+    setGenerationError(null);
+  };
+
   const handleGenerate = async (): Promise<void> => {
     if (!snapshot) {
       return;
     }
 
+    generationControllerRef.current?.abort();
+    const controller = new AbortController();
+    const requestId = generationRequestIdRef.current + 1;
+    generationRequestIdRef.current = requestId;
+    generationControllerRef.current = controller;
+
     try {
       setGenerationError(null);
       setIsGenerating(true);
-      const nextResult = await generateImageFromAudio(snapshot, settings);
+      const nextResult = await generateImageFromAudio(snapshot, settings, controller.signal);
+      if (generationRequestIdRef.current !== requestId) {
+        return;
+      }
       setResult(nextResult);
     } catch (caughtError) {
+      if (
+        controller.signal.aborted ||
+        generationRequestIdRef.current !== requestId
+      ) {
+        return;
+      }
+
       const message =
         caughtError instanceof Error ? caughtError.message : 'Failed to generate an image.';
       setGenerationError(message);
     } finally {
-      setIsGenerating(false);
+      if (generationRequestIdRef.current === requestId) {
+        generationControllerRef.current = null;
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -115,9 +164,9 @@ function App() {
                 loudness, and sudden beats change from the start of the track to the end.
               </p>
               <p>
-                Those changes become a visual score that you can inspect first. The same
-                score is then supplied to the chosen image model as the structure for the
-                final artwork.
+                Those changes are folded into an abstract composition map that you can
+                inspect first. The same map guides the balance, weight, and energy of the
+                final artwork without being traced as a sound wave.
               </p>
             </div>
           </details>
@@ -157,8 +206,8 @@ function App() {
               <h2>Create the artwork</h2>
             </div>
             <p className="supporting-copy">
-              The track's visual score fixes the composition; the selected provider adds
-              artistic material and finish through the backend.
+              The track's composition map anchors visual weight, density, and rhythm; the
+              selected provider transforms it into a finished art piece through the backend.
             </p>
             <button type="button" className="button button--primary button--wide" disabled={!canGenerate} onClick={handleGenerate}>
               {isGenerating ? 'Generating...' : 'Generate art'}
@@ -170,6 +219,7 @@ function App() {
             error={generationError}
             snapshot={snapshot}
             style={settings.style}
+            onCancel={handleCancelGeneration}
           />
         </div>
       </main>

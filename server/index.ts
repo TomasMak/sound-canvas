@@ -32,6 +32,15 @@ app.post(
     request: express.Request<object, GeneratedImageResult | { error: string }, GenerateImageRequestBody>,
     response: express.Response<GeneratedImageResult | { error: string }>
   ) => {
+    const generationController = new AbortController();
+    const abortGeneration = (): void => {
+      if (!response.writableEnded) {
+        generationController.abort();
+      }
+    };
+    request.once('aborted', abortGeneration);
+    response.once('close', abortGeneration);
+
     try {
       const { snapshot, settings, visualScore } = request.body;
 
@@ -57,14 +66,20 @@ app.post(
               apiKey: process.env.OPENAI_API_KEY?.trim() ?? '',
               prompt,
               imageSize: settings.imageSize,
-              visualScore
+              visualScore,
+              signal: generationController.signal
             })
           : await generateWithGemini({
               apiKey: process.env.GEMINI_API_KEY?.trim() ?? '',
               prompt,
               imageSize: settings.imageSize,
-              visualScore
+              visualScore,
+              signal: generationController.signal
             });
+
+      if (generationController.signal.aborted) {
+        return;
+      }
 
       response.json({
         imageUrl,
@@ -73,8 +88,15 @@ app.post(
         createdAt: new Date().toISOString()
       });
     } catch (error) {
+      if (generationController.signal.aborted) {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : 'Image generation failed.';
       response.status(500).json({ error: message });
+    } finally {
+      request.off('aborted', abortGeneration);
+      response.off('close', abortGeneration);
     }
   }
 );

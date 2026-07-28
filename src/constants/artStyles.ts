@@ -4,16 +4,16 @@ export const artStyleOptions: ArtStyleOption[] = [
   {
     id: 'abstract',
     label: 'Abstract Flow',
-    description: 'Painterly motion, layered color fields, and rhythm-driven composition.'
+    description: 'Gestural mixed-media painting with pigment masses, washes, and deliberate negative space.'
   },
   {
     id: 'pixelated',
     label: 'Pixel Pulse',
-    description: 'Retro grid aesthetics shaped by transients, beats, and audio peaks.'
+    description: 'Neo-geometric digital mosaic with clustered modules, broken grids, and stepped forms.'
   },
   {
     id: 'spectral-bloom',
     label: 'Spectral Bloom',
-    description: 'Luminous organic forms inspired by harmonics, texture, and resonance.'
+    description: 'Luminous biomorphic forms with translucent layers, fine filaments, and atmospheric depth.'
   }
 ];

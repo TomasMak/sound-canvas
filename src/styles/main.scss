@@ -734,6 +734,11 @@ img {
   font-weight: 700;
 }
 
+.generation-preview__cancel {
+  justify-self: start;
+  margin-top: var(--space-2);
+}
+
 .result-image-wrap {
   position: relative;
   overflow: hidden;

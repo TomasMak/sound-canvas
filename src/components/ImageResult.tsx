@@ -10,9 +10,17 @@ interface ImageResultProps {
   error: string | null;
   snapshot: AudioAnalysisSnapshot | null;
   style: ArtStyleId;
+  onCancel: () => void;
 }
 
-export const ImageResult = ({ result, isGenerating, error, snapshot, style }: ImageResultProps) => {
+export const ImageResult = ({
+  result,
+  isGenerating,
+  error,
+  snapshot,
+  style,
+  onCancel
+}: ImageResultProps) => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -71,7 +79,7 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
         </div>
 
         {isGenerating && (
-          <div className="generation-preview">
+          <div className="generation-preview" aria-live="polite">
             <div className="generation-preview__frame">
               <PaintPreviewCanvas snapshot={snapshot} style={style} progress={generationProgress} />
               <div
@@ -80,12 +88,19 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
               />
             </div>
             <div className="generation-preview__meta">
-              <strong>Building from the track's visual score</strong>
+              <strong>Building the track's abstract composition</strong>
               <p>
-                Revealing the same waveform-led paths, frequency colors, and beat
-                accents that were sent to the image model.
+                Folding frequency energy into layered masses, connective gestures, fine
+                detail, and beat-driven accents sent to the image model.
               </p>
               <span>{generationProgress}% visual pass complete</span>
+              <button
+                type="button"
+                className="button button--ghost generation-preview__cancel"
+                onClick={onCancel}
+              >
+                Cancel generation
+              </button>
             </div>
           </div>
         )}
@@ -139,19 +154,19 @@ export const ImageResult = ({ result, isGenerating, error, snapshot, style }: Im
               loudness, low sounds, middle frequencies, high sounds, and sudden beats.
             </p>
             <p>
-              It first draws a track-specific visual score. Time runs from left to right:
-              warm brown follows bass, blue-green follows mids, gold follows treble, the
-              surrounding shape follows loudness, and terracotta marks sudden hits.
+              It then folds those changes into an abstract composition map. Warm brown
+              carries the weight of bass, blue-green creates connective movement, gold
+              adds high-frequency detail, and terracotta marks sudden hits.
             </p>
             <p>
-              That score is sent to the selected image model as a reference image. The
-              model is asked to preserve its main paths and accents while adding the
-              chosen artistic texture and finish.
+              That map is sent to the selected image model as compositional DNA. The
+              model preserves its balance, density, energy, and accent rhythm while
+              transforming the visible paths into a more complete art form.
             </p>
             <p>
               This means the final artwork can still vary creatively, but its underlying
-              composition is anchored to the analyzed track rather than invented from a
-              general mood description.
+              visual weight is anchored to the analyzed track rather than invented from
+              a general mood description or rendered as a literal sound wave.
             </p>
           </div>
         </div>
